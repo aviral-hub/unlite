@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOW Generator | Unlitify Intel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --cyan: #00D1FF; --bg: #050505; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
+        .input-field { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; color: white; width: 100%; outline: none; margin-bottom: 10px; }
+        .input-field:focus { border-color: var(--cyan); }
+        
+        /* PDF Styling */
+        #sow-document {
+            background: white; color: #1a1a1a; padding: 1in; width: 8.27in; min-height: 11.69in; margin: 0 auto; display: none;
+        }
+        .pdf-header { border-bottom: 2px solid #000; margin-bottom: 30px; padding-bottom: 10px; }
+        .pdf-h1 { font-size: 22pt; font-weight: 800; text-transform: uppercase; }
+        .pdf-h2 { font-size: 12pt; font-weight: 700; margin-top: 25px; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #00D1FF; }
+        .pdf-p { font-size: 10pt; line-height: 1.6; margin-top: 10px; color: #333; }
+        .item-row { display: flex; justify-content: space-between; border-bottom: 1px solid #f0f0f0; padding: 8px 0; font-size: 9.5pt; }
+    </style>
+</head>
+<div class="space-y-6">
+    <div>
+        <h1 class="text-3xl font-black tracking-tighter">SOW <span class="text-cyan-400">Builder Pro</span></h1>
+        <p class="text-gray-500 text-xs mt-1">Select multiple protocols to build a high-ticket scope.</p>
+    </div>
+
+    <div class="space-y-4 bg-white/5 p-6 rounded-2xl border border-white/10">
+        <input type="text" id="clientName" placeholder="Client Name (e.g., Raunak)" class="input-field" oninput="updateSOW()">
+        <input type="text" id="projectName" placeholder="Project Title" class="input-field" oninput="updateSOW()">
+        
+        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Add Deliverable From Library</label>
+        <div class="flex gap-2">
+            <select id="serviceSelector" class="input-field !mb-0">
+                <optgroup label="Paid Acquisition (Meta/Google)">
+                    <option value="Meta Ads: 3-Tier Funnel Setup (Cold/Retargeting/LAL)">Meta Ads: 3-Tier Funnel Setup</option>
+                    <option value="Google Search: Intent-Based Campaign Architecture">Google Search: High-Intent Setup</option>
+                    <option value="YouTube Ads: High-Frequency Scaling Protocol">YouTube Ads: Scaling Protocol</option>
+                </optgroup>
+                <optgroup label="Conversion Infrastructure">
+                    <option value="Landing Page: High-Velocity Conversion Design (A/B Ready)">Landing Page: Conversion Design</option>
+                    <option value="Funnel Optimization: UI/UX Friction Reduction Audit">Funnel Friction Audit</option>
+                    <option value="Tracking: Server-Side GTM & Meta Conversions API (CAPI)">Advanced CAPI Tracking</option>
+                </optgroup>
+                <optgroup label="Retention & Automation">
+                    <option value="WhatsApp: Automated Abandoned Cart & Support Bot">WhatsApp: Automation Flow</option>
+                    <option value="Email: 5-Step Customer Lifetime Value (LTV) Sequence">Email: LTV Sequence</option>
+                    <option value="CRM: Hubspot/Salesforce Integration & Lead Scoring">CRM Integration</option>
+                </optgroup>
+                <optgroup label="Creative & Content">
+                    <option value="Creative: 5 Direct Response UGC Ad Hooks">5x UGC Ad Hooks</option>
+                    <option value="Content: Monthly Brand Authority Grid (15 Posts)">Brand Authority Grid</option>
+                    <option value="Video: 3 High-End Narrative Explainer Reels">3x Narrative Reels</option>
+                </optgroup>
+            </select>
+            <input type="number" id="tempPrice" placeholder="₹ Price" class="input-field !mb-0 !w-32">
+            <button onclick="addService()" class="bg-cyan-500 text-black px-4 rounded-xl font-bold">+</button>
+        </div>
+
+        <div id="serviceList" class="space-y-2 mt-4 max-h-48 overflow-y-auto pr-2">
+            </div>
+    </div>
+
+    <div class="p-6 bg-cyan-500/5 border border-cyan-500/20 rounded-2xl">
+        <div class="flex justify-between items-center">
+            <span class="text-xs font-bold uppercase text-gray-400">Total Project Value</span>
+            <span class="text-2xl font-black text-cyan-400" id="totalDisplay">₹0</span>
+        </div>
+    </div>
+
+    <button onclick="exportSOW()" class="w-full bg-white text-black font-black py-4 rounded-xl uppercase tracking-widest text-sm hover:bg-cyan-400 transition-all">
+        Export Professional SOW
+    </button>
+</div>
+<script>
+    let selectedServices = [];
+
+    function addService() {
+        const selector = document.getElementById('serviceSelector');
+        const priceInput = document.getElementById('tempPrice');
+        const service = selector.value;
+        const price = priceInput.value || 0;
+
+        if (service) {
+            selectedServices.push({ 
+                name: service, 
+                price: parseFloat(price) 
+            });
+            renderServiceList();
+            updateSOW();
+            priceInput.value = ""; // Reset price field
+        }
+    }
+
+    function removeService(index) {
+        selectedServices.splice(index, 1);
+        renderServiceList();
+        updateSOW();
+    }
+
+    function renderServiceList() {
+        const list = document.getElementById('serviceList');
+        list.innerHTML = selectedServices.map((s, i) => `
+            <div class="flex justify-between items-center bg-white/5 p-3 rounded-lg text-xs border border-white/5">
+                <div>
+                    <span class="text-white font-medium">${s.name}</span>
+                    <span class="text-cyan-400 block font-bold">₹${s.price.toLocaleString()}</span>
+                </div>
+                <button onclick="removeService(${index})" class="text-gray-500 hover:text-red-400">✕</button>
+            </div>
+        `).join('');
+    }
+
+    function updateSOW() {
+        const client = document.getElementById('clientName').value || "---";
+        const project = document.getElementById('projectName').value || "---";
+        
+        const total = selectedServices.reduce((sum, s) => sum + s.price, 0);
+        document.getElementById('totalDisplay').innerText = "₹" + total.toLocaleString();
+
+        // Update PDF Preview
+        document.getElementById('previewArea').innerHTML = `
+            <div class="text-white font-bold text-lg mb-2">${client}</div>
+            <div class="text-cyan-400 text-xs font-bold uppercase tracking-widest mb-4">${project}</div>
+            <div class="space-y-3">
+                ${selectedServices.map(s => `
+                    <div class="flex justify-between border-b border-white/5 pb-2">
+                        <span class="text-gray-300">○ ${s.name}</span>
+                        <span class="text-white font-bold">₹${s.price.toLocaleString()}</span>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="mt-6 pt-4 border-t border-cyan-500/30 flex justify-between">
+                <span class="font-black text-white">TOTAL COMMITMENT</span>
+                <span class="font-black text-cyan-400 text-lg">₹${total.toLocaleString()}</span>
+            </div>
+        `;
+
+        // Update Hidden PDF Document
+        document.getElementById('pdfClient').innerText = client;
+        document.getElementById('pdfProject').innerText = project;
+        document.getElementById('pdfDate').innerText = new Date().toLocaleDateString();
+        
+        document.getElementById('pdfServiceRows').innerHTML = selectedServices.map(s => `
+            <div class="item-row" style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0;">
+                <span style="font-size: 10pt;">${s.name}</span>
+                <span style="font-weight: bold; font-size: 10pt;">₹${s.price.toLocaleString()}</span>
+            </div>
+        `).join('') + `
+            <div style="display: flex; justify-content: space-between; margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                <span style="font-weight: 800; text-transform: uppercase;">Total Project Investment</span>
+                <span style="font-weight: 800; color: #00D1FF; font-size: 12pt;">₹${total.toLocaleString()}</span>
+            </div>
+        `;
+    }
+
+    function exportSOW() {
+        // ... same export logic as before ...
+    }
+</script>
+
+
+</body>
+</html>
