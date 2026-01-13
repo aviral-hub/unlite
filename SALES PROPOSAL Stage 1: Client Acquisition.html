@@ -243,151 +243,155 @@ function addCustomItem() {
     </div>
 
     <script>
+    // 1. Data State
+    let items = [];
+    let timeline = [];
 
-      let timeline = [];
-
-function addTimeline() {
-    const phase = document.getElementById('timelinePhase').value;
-    const goal = document.getElementById('timelineGoal').value;
-    if(phase && goal) {
-        timeline.push({ phase, goal });
-        document.getElementById('timelinePhase').value = "";
-        document.getElementById('timelineGoal').value = "";
-        renderTimeline();
-        sync();
+    // 2. Add Service Item
+    function addItem() {
+        const s = document.getElementById('serviceSelect').value;
+        const c = document.getElementById('serviceCost').value;
+        if (c) {
+            items.push({ name: s, cost: parseInt(c) });
+            document.getElementById('serviceCost').value = "";
+            sync(); // Trigger update
+        }
     }
-}
 
-function renderTimeline() {
-    const stack = document.getElementById('timelineStack');
-    const pdfStack = document.getElementById('pdfTimeline'); // Add this ID in your hidden PDF
-    
-    stack.innerHTML = timeline.map((t, i) => `
-        <div class="flex justify-between text-[10px] bg-white/5 p-2 rounded border border-white/5">
-            <span class="text-cyan-400 font-bold">${t.phase}</span>
-            <span class="text-gray-400">${t.goal}</span>
-            <button onclick="timeline.splice(${i},1);renderTimeline();sync()" class="text-red-500">✕</button>
-        </div>
-    `).join('');
-}
+    // 3. Add Timeline Phase
+    function addTimeline() {
+        const phase = document.getElementById('timelinePhase').value;
+        const goal = document.getElementById('timelineGoal').value;
+        if (phase && goal) {
+            timeline.push({ phase, goal });
+            document.getElementById('timelinePhase').value = "";
+            document.getElementById('timelineGoal').value = "";
+            sync(); // Trigger update
+        }
+    }
 
-// Inside your existing sync() function, add:
-function sync() {
-    // ... previous sync code ...
-
-    // Video Logic
-    const video = document.getElementById('videoLink').value;
-    document.getElementById('viewVideo').innerHTML = video ? 
-        `<a href="${video}" target="_blank" class="flex items-center gap-2 text-xs text-cyan-400 bg-cyan-400/10 p-3 rounded-xl border border-cyan-400/20">
-            <i class="fa-solid fa-play-circle"></i> Watch Personalized Strategy Video
-        </a>` : '';
-
-    // ROI Logic
-    const metric = document.getElementById('targetMetric').value || "TBD";
-    const scale = document.getElementById('targetScale').value || "TBD";
-    document.getElementById('viewROI').innerHTML = `
-        <div class="grid grid-cols-2 gap-4 mt-4">
-            <div class="p-4 bg-white/5 rounded-2xl border border-white/5">
-                <p class="text-[9px] text-gray-500 uppercase font-bold">Target KPI</p>
-                <p class="text-lg font-black text-white">${metric}</p>
-            </div>
-            <div class="p-4 bg-white/5 rounded-2xl border border-white/5">
-                <p class="text-[9px] text-gray-500 uppercase font-bold">Expected Volume</p>
-                <p class="text-lg font-black text-white">${scale}</p>
-            </div>
-        </div>
-    `;
-    
-    // Update PDF Timeline
-    document.getElementById('pdfTimeline').innerHTML = timeline.map(t => `
-        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:5px 0; font-size:9pt;">
-            <strong style="color:#00D1FF">${t.phase}</strong>
-            <span>${t.goal}</span>
-        </div>
-    `).join('');
-}
-        let items = [];
+    // 4. The Master Sync Function (Corrected & Merged)
+    function sync() {
+        // A. Basic Info
+        const client = document.getElementById('clientName').value || "Enter Client Name";
+        const contact = document.getElementById('clientContact').value || "Contact Details";
+        const payTerms = document.getElementById('payTerms').value;
         
-        function sync() {
-            const client = document.getElementById('clientName').value || "Enter Client Name";
-            const contact = document.getElementById('clientContact').value || "Contact Details";
-            const payTerms = document.getElementById('payTerms').value;
-            
-            // Auto Expiry Logic (Today + 30 Days)
-            const d = new Date();
-            d.setDate(d.getDate() + 30);
-            const expiryStr = d.toLocaleDateString('en-GB');
+        // B. Auto Expiry Logic (Today + 30 Days)
+        const d = new Date();
+        d.setDate(d.getDate() + 30);
+        const expiryStr = d.toLocaleDateString('en-GB');
 
-            document.getElementById('viewClient').innerText = client;
-            document.getElementById('viewContact').innerText = contact;
-            document.getElementById('viewPayTerms').innerText = payTerms;
-            document.getElementById('expiryDate').innerText = expiryStr;
+        // C. Update UI & PDF Headers
+        document.getElementById('viewClient').innerText = client;
+        document.getElementById('viewContact').innerText = contact;
+        document.getElementById('viewPayTerms').innerText = payTerms;
+        document.getElementById('expiryDate').innerText = expiryStr;
 
-            // PDF Sync
-            document.getElementById('pdfClient').innerText = client;
-            document.getElementById('pdfContact').innerText = contact;
-            document.getElementById('pdfPayTerms').innerText = payTerms;
-            document.getElementById('pdfExpiry').innerText = expiryStr;
-            document.getElementById('pdfID').innerText = "UL-" + Math.floor(Math.random()*9000 + 1000);
-            
-            renderItems();
+        document.getElementById('pdfClient').innerText = client;
+        document.getElementById('pdfContact').innerText = contact;
+        document.getElementById('pdfPayTerms').innerText = payTerms;
+        document.getElementById('pdfExpiry').innerText = expiryStr;
+        
+        if(!document.getElementById('pdfID').innerText) {
+            document.getElementById('pdfID').innerText = "UL-" + Math.floor(Math.random() * 9000 + 1000);
         }
 
-        function addItem() {
-            const s = document.getElementById('serviceSelect').value;
-            const c = document.getElementById('serviceCost').value;
-            if(c) {
-                items.push({ name: s, cost: parseInt(c) });
-                document.getElementById('serviceCost').value = "";
-                sync();
-            }
+        // D. Video Personalization Logic
+        const video = document.getElementById('videoLink').value;
+        const videoContainer = document.getElementById('viewVideo');
+        if(videoContainer) {
+            videoContainer.innerHTML = video ? 
+                `<a href="${video}" target="_blank" class="flex items-center gap-2 text-xs text-cyan-400 bg-cyan-400/10 p-3 rounded-xl border border-cyan-400/20">
+                    <i class="fa-solid fa-play-circle"></i> Watch Strategy Walkthrough
+                </a>` : '';
         }
 
-        function renderItems() {
-            let total = 0;
-            const listUI = document.getElementById('viewItems');
-            const listPDF = document.getElementById('pdfItems');
-            const itemList = document.getElementById('itemList');
-            
-            listUI.innerHTML = "";
-            listPDF.innerHTML = "";
-            itemList.innerHTML = "";
-
-            items.forEach((item, index) => {
-                total += item.cost;
-                listUI.innerHTML += `<tr class="border-b border-white/5"><td class="py-4 font-medium text-white">${item.name}</td><td class="py-4 text-right font-bold text-white">₹${item.cost.toLocaleString()}</td></tr>`;
-                listPDF.innerHTML += `<tr><td>${item.name}</td><td style="text-align: right;">₹${item.cost.toLocaleString()}</td></tr>`;
-                itemList.innerHTML += `<div class="flex justify-between text-xs bg-white/5 p-2 rounded"><span>${item.name}</span><button onclick="items.splice(${index},1);sync()" class="text-red-500">✕</button></div>`;
-            });
-
-            document.getElementById('viewTotal').innerText = "₹" + total.toLocaleString();
-            document.getElementById('pdfTotal').innerText = "₹" + total.toLocaleString();
+        // E. ROI Projection Logic
+        const metric = document.getElementById('targetMetric').value || "TBD";
+        const scale = document.getElementById('targetScale').value || "TBD";
+        const roiContainer = document.getElementById('viewROI');
+        if(roiContainer) {
+            roiContainer.innerHTML = `
+                <div class="grid grid-cols-2 gap-4 mt-2">
+                    <div class="p-3 bg-white/5 rounded-xl border border-white/5">
+                        <p class="text-[8px] text-gray-500 uppercase font-bold">Target KPI</p>
+                        <p class="text-sm font-black text-white">${metric}</p>
+                    </div>
+                    <div class="p-3 bg-white/5 rounded-xl border border-white/5">
+                        <p class="text-[8px] text-gray-500 uppercase font-bold">Scale Goal</p>
+                        <p class="text-sm font-black text-white">${scale}</p>
+                    </div>
+                </div>`;
         }
 
-        function generatePDF() {
-            const element = document.getElementById('proposal-pdf');
-            element.style.display = 'block';
-            const opt = {
-                margin: 0,
-                filename: `Proposal_${document.getElementById('clientName').value}.pdf`,
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 3 },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.style.display = 'none';
-            });
-        }
+        // F. Render Items & Totals
+        renderItems();
 
-        // Init
-        sync();
+        // G. Render Timeline Phases
+        renderTimeline();
+    }
 
+    // 5. Render Lists
+    function renderItems() {
+        let total = 0;
+        const listUI = document.getElementById('viewItems');
+        const listPDF = document.getElementById('pdfItems');
+        const itemList = document.getElementById('itemList');
+        
+        listUI.innerHTML = "";
+        listPDF.innerHTML = "";
+        itemList.innerHTML = "";
 
-        // Add this logic to your PDF generator to group items automatically
-function groupItemsByPillar(items) {
-    // This logic can be used to visually separate "Setup Fees" from "Monthly Retainers"
-    // on the final PDF to make it look cleaner.
-}
-    </script>
+        items.forEach((item, index) => {
+            total += item.cost;
+            listUI.innerHTML += `<tr class="border-b border-white/5"><td class="py-4 font-medium text-white">${item.name}</td><td class="py-4 text-right font-bold text-white">₹${item.cost.toLocaleString()}</td></tr>`;
+            listPDF.innerHTML += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${item.name}</td><td style="padding:10px; border-bottom:1px solid #eee; text-align: right;">₹${item.cost.toLocaleString()}</td></tr>`;
+            itemList.innerHTML += `<div class="flex justify-between text-[10px] bg-white/5 p-2 rounded"><span>${item.name}</span><button onclick="items.splice(${index},1);sync()" class="text-red-500">✕</button></div>`;
+        });
+
+        document.getElementById('viewTotal').innerText = "₹" + total.toLocaleString();
+        document.getElementById('pdfTotal').innerText = "₹" + total.toLocaleString();
+    }
+
+    function renderTimeline() {
+        const stack = document.getElementById('timelineStack');
+        const pdfStack = document.getElementById('pdfTimeline');
+        
+        stack.innerHTML = timeline.map((t, i) => `
+            <div class="flex justify-between text-[10px] bg-white/5 p-2 rounded border border-white/5">
+                <span class="text-cyan-400 font-bold">${t.phase}</span>
+                <span class="text-gray-400">${t.goal}</span>
+                <button onclick="timeline.splice(${i},1);sync()" class="text-red-500">✕</button>
+            </div>
+        `).join('');
+
+        pdfStack.innerHTML = timeline.map(t => `
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:8px 0; font-size:9pt;">
+                <strong style="color:#00D1FF">${t.phase}</strong>
+                <span>${t.goal}</span>
+            </div>
+        `).join('');
+    }
+
+    // 6. Export Function
+    function generatePDF() {
+        const element = document.getElementById('proposal-pdf');
+        element.style.display = 'block';
+        const opt = {
+            margin: 0,
+            filename: `Proposal_Unlitify_${document.getElementById('clientName').value}.pdf`,
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { scale: 3 },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save().then(() => {
+            element.style.display = 'none';
+        });
+    }
+
+    // Initialize on Page Load
+    window.onload = sync;
+</script>
 </body>
 </html>
