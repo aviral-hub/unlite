@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Proposal | Unlitify Sales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --cyan: #00D1FF; --bg: #050505; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
+        .input-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 24px; }
+        .input-field { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; color: white; width: 100%; outline: none; transition: 0.3s; }
+        .input-field:focus { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,209,255,0.2); }
+        
+        /* PDF EXPORT STYLING */
+        #proposal-pdf {
+            background: #fff; color: #111; width: 8.27in; padding: 0.8in; margin: 0 auto; display: none;
+        }
+        .pdf-accent { color: #00D1FF; font-weight: 800; }
+        .pdf-table th { text-align: left; border-bottom: 2px solid #eee; padding: 10px; font-size: 9pt; color: #666; text-transform: uppercase; }
+        .pdf-table td { padding: 12px 10px; border-bottom: 1px solid #f5f5f5; font-size: 10pt; }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+
+  
+
+ 
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
+        
+        <div class="lg:col-span-2 space-y-6">
+            <div class="mb-8">
+                <h1 class="text-3xl font-black italic">SALES <span class="text-cyan-400">PROPOSAL</span></h1>
+                <p class="text-gray-500 text-xs tracking-widest uppercase">Stage 1: Client Acquisition</p>
+            </div>
+
+            <div class="input-card space-y-4">
+                <p class="text-[10px] font-bold text-cyan-400 uppercase tracking-[0.2em]">Client Intel</p>
+                <input type="text" id="clientName" placeholder="Brand/Client Name" class="input-field" oninput="sync()">
+                <input type="text" id="clientContact" placeholder="Contact Person / Email" class="input-field" oninput="sync()">
+            </div>
+
+            <div class="input-card space-y-4">
+                <p class="text-[10px] font-bold text-cyan-400 uppercase tracking-[0.2em]">Deployment Scope</p>
+                <div class="flex gap-2">
+                    <select id="serviceSelect" class="input-field">
+    <optgroup label="Pillar 1: Paid Acquisition">
+        <option value="Meta Ads: 3-Tier Scaling (Cold, Warm, Hot)">Meta Ads: Full Funnel Scaling</option>
+        <option value="Google Search: Intent-Based Keyword Dominance">Google Search: Search Dominance</option>
+        <option value="YouTube Ads: High-Frequency Video Scaling">YouTube Ads: Narrative Scaling</option>
+        <option value="LinkedIn Ads: B2B Decision-Maker Targeting">LinkedIn Ads: Account Based Marketing</option>
+    </optgroup>
+
+    <optgroup label="Pillar 2: Conversion Infrastructure">
+        <option value="Landing Page: High-Velocity UI/UX Re-Engineering">High-Velocity Landing Page</option>
+        <option value="Checkout Optimization: One-Click Friction Reduction">Checkout Friction Optimization</option>
+        <option value="Tracking: Server-Side GTM & Meta CAPI (100% Data)">Advanced Server-Side Tracking</option>
+        <option value="Speed Protocol: Sub-2s Load Time Hardening">Speed Hardening Protocol</option>
+    </optgroup>
+
+    <optgroup label="Pillar 3: Creative Strategy">
+        <option value="UGC Factory: 5 High-Retention Video Ad Hooks">5x UGC High-Retention Hooks</option>
+        <option value="Statics: 10 High-CTR Scientific Ad Designs">10x Scientific Ad Creatives</option>
+        <option value="Copywriting: Psychology-Based Ad & LP Scripting">Direct Response Copywriting</option>
+        <option value="Brand Identity: Visual Language & Asset Guidelines">Premium Brand Refinement</option>
+    </optgroup>
+
+    <optgroup label="Pillar 4: Automation & LTV">
+        <option value="WhatsApp: Automated Abandoned Cart & CRM Flow">WhatsApp Revenue Automation</option>
+        <option value="Email: 7-Step Post-Purchase Loyalty Sequence">Email LTV Sequence</option>
+        <option value="Chatbot: AI-Driven Customer Support & FAQ Bot">AI Customer Concierge Bot</option>
+        <option value="SMS: Flash-Sale & Urgent Reminder Protocol">SMS Priority Marketing</option>
+    </optgroup>
+
+    <optgroup label="Pillar 5: Search & Authority">
+        <option value="SEO: Technical Audit & First Page Keyword Map">Technical SEO Roadmap</option>
+        <option value="Backlink: High-Authority Digital PR Placements">Digital PR & Authority Backlinks</option>
+        <option value="GMB: Local Search Dominance & Review Engine">Local Search Engine Optimization</option>
+    </optgroup>
+
+    <optgroup label="Pillar 6: Global Intelligence">
+        <option value="Consulting: Weekly CMO-Level Growth Strategy">Weekly Strategic Consulting</option>
+        <option value="Market Entry: Cross-Border Logistics & Setup (US/DE/UK)">Cross-Border Market Entry</option>
+        <option value="Dashboard: Live ROI & Attribution Data Portal">Custom Data Attribution Portal</option>
+    </optgroup>
+</select>
+
+
+                    <input type="number" id="serviceCost" placeholder="Price" class="input-field w-24">
+                    <button onclick="addItem()" class="bg-cyan-500 text-black px-4 rounded-lg font-black">+</button>
+                </div>
+                <div id="itemList" class="space-y-2"></div>
+            </div>
+
+
+            <div class="mt-4 flex flex-col gap-2">
+    <p class="text-[9px] text-gray-600 uppercase font-bold">Or Add Custom Deliverable</p>
+    <div class="flex gap-2">
+        <input type="text" id="customServiceName" placeholder="Enter Custom Service..." class="input-field !mb-0 text-xs">
+        <input type="number" id="customServicePrice" placeholder="₹ Price" class="input-field !mb-0 !w-32">
+        <button onclick="addCustomItem()" class="bg-white/10 text-white px-4 rounded-lg border border-white/20">+</button>
+    </div>
+</div>
+
+<script>
+function addCustomItem() {
+    const name = document.getElementById('customServiceName').value;
+    const price = document.getElementById('customServicePrice').value;
+    if(name && price) {
+        items.push({ name: name, cost: parseInt(price) });
+        document.getElementById('customServiceName').value = "";
+        document.getElementById('customServicePrice').value = "";
+        sync();
+    }
+}
+</script>
+
+            <div class="input-card">
+                <p class="text-[10px] font-bold text-cyan-400 uppercase tracking-[0.2em] mb-4">Terms & Validity</p>
+                <select id="payTerms" class="input-field mb-3" onchange="sync()">
+                    <option value="50% Upfront, 50% on Delivery">Standard: 50/50</option>
+                    <option value="100% Upfront (5% Discount applied)">100% Advance</option>
+                    <option value="Monthly Retainer (Net-0)">Monthly Retainer</option>
+                </select>
+                <p class="text-[10px] text-gray-500 italic">Proposal auto-expires in 30 days.</p>
+            </div>
+             <div class="input-card space-y-4">
+    <p class="text-[10px] font-bold text-cyan-400 uppercase tracking-[0.2em]">Personalization Hook</p>
+    <div class="flex items-center gap-2 bg-black/40 p-2 rounded-lg border border-white/5">
+        <i class="fa-solid fa-video text-gray-500 ml-2"></i>
+        <input type="text" id="videoLink" placeholder="Paste Loom/Video URL..." class="bg-transparent border-none text-xs text-white outline-none w-full" oninput="sync()">
+    </div>
+</div>
+
+<div class="input-card space-y-4">
+    <p class="text-[10px] font-bold text-cyan-400 uppercase tracking-[0.2em]">Implementation Timeline</p>
+    <div class="grid grid-cols-2 gap-2">
+        <input type="text" id="timelinePhase" placeholder="Phase (e.g. Week 1)" class="input-field text-xs">
+        <input type="text" id="timelineGoal" placeholder="Goal (e.g. Audit)" class="input-field text-xs">
+    </div>
+    <button onclick="addTimeline()" class="w-full bg-white/10 hover:bg-white/20 text-white py-2 rounded-lg text-[10px] font-bold uppercase transition-all">+ Add Phase</button>
+    <div id="timelineStack" class="space-y-1"></div>
+</div>
+
+<div class="input-card space-y-4">
+    <p class="text-[10px] font-bold text-cyan-400 uppercase tracking-[0.2em]">Projected Impact (ROI)</p>
+    <div class="grid grid-cols-2 gap-2">
+        <input type="text" id="targetMetric" placeholder="Target ROAS/Leads" class="input-field text-xs" oninput="sync()">
+        <input type="text" id="targetScale" placeholder="Expected Scale" class="input-field text-xs" oninput="sync()">
+    </div>
+</div>
+
+            <button onclick="generatePDF()" class="w-full bg-white text-black font-black py-4 rounded-2xl uppercase tracking-[0.2em] text-xs hover:bg-cyan-400 transition-all">
+                Export Smart Proposal
+            </button>
+        </div>
+
+        <div class="lg:col-span-3 bg-white/5 rounded-[40px] p-1 border border-white/10 overflow-hidden">
+            <div class="bg-zinc-900 p-8 h-full min-h-[700px] rounded-[38px] relative">
+                <div class="flex justify-between items-start mb-16">
+                    <div class="text-2xl font-black">UNLITIFY<span class="text-cyan-400">.</span></div>
+                    <div class="text-right">
+                        <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Valid Until</p>
+                        <p id="expiryDate" class="text-white font-bold text-sm">--/--/--</p>
+                    </div>
+                </div>
+
+                <div class="mb-12">
+                    <h2 class="text-sm text-cyan-400 font-bold uppercase tracking-widest mb-2">Proposal For</h2>
+                    <p id="viewClient" class="text-4xl font-black tracking-tighter">Enter Client Name</p>
+                    <p id="viewContact" class="text-gray-500 mt-2">Contact Details</p>
+                </div>
+
+                <table class="w-full text-left mb-12">
+                    <thead class="text-[10px] text-gray-500 uppercase border-b border-white/10">
+                        <tr>
+                            <th class="pb-4">Core Service</th>
+                            <th class="pb-4 text-right">Investment</th>
+                        </tr>
+                    </thead>
+                    <tbody id="viewItems" class="text-sm">
+                        </tbody>
+                </table>
+
+                <div class="flex justify-between items-center p-6 bg-white/5 rounded-2xl border border-white/10">
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase font-bold">Total Commitment</p>
+                        <p id="viewTotal" class="text-3xl font-black text-cyan-400">₹0</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] text-gray-500 uppercase font-bold">Payment Terms</p>
+                        <p id="viewPayTerms" class="text-white font-bold text-xs">Select Terms</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="proposal-pdf">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px;">
+            <div style="font-size: 24pt; font-weight: 900;">UNLITIFY<span style="color: #00D1FF;">.</span></div>
+            <div style="text-align: right; font-size: 9pt; line-height: 1.2;">
+                <strong>PROPOSAL ID:</strong> <span id="pdfID"></span><br>
+                <strong>VALID UNTIL:</strong> <span id="pdfExpiry"></span>
+            </div>
+        </div>
+
+        <h1 style="font-size: 28pt; letter-spacing: -1px; margin-bottom: 5px;">Project Proposal</h1>
+        <p style="font-size: 11pt; color: #666; margin-bottom: 40px;">Prepared for: <strong id="pdfClient"></strong> (<span id="pdfContact"></span>)</p>
+
+        <table class="pdf-table" style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
+            <thead>
+                <tr>
+                    <th>Service Description & Scope</th>
+                    <th style="text-align: right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody id="pdfItems"></tbody>
+            <tfoot>
+                <tr>
+                    <td style="padding-top: 20px; font-weight: 800; font-size: 12pt;">TOTAL INVESTMENT</td>
+                    <td style="padding-top: 20px; text-align: right; font-weight: 800; font-size: 12pt; color: #00D1FF;" id="pdfTotal"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div style="margin-bottom: 40px;">
+            <h3 style="font-size: 10pt; text-transform: uppercase; margin-bottom: 10px;">Payment Terms</h3>
+            <p style="font-size: 10pt; color: #444;" id="pdfPayTerms"></p>
+        </div>
+
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; font-size: 8.5pt; color: #777; line-height: 1.5;">
+            <strong>Standard Terms:</strong> Work begins only after initial settlement. Validity of this proposal is 30 days. Unlitify retains creative control over optimization protocols to ensure target KPIs are met.
+        </div>
+
+        <div style="margin-top: 60px; display: flex; justify-content: space-between;">
+            <div style="width: 200px; border-top: 1px solid #000; padding-top: 10px; font-size: 9pt;">Client Signature</div>
+            <div style="width: 200px; border-top: 1px solid #000; padding-top: 10px; font-size: 9pt; text-align: right;">Unlitify Sales Lead</div>
+        </div>
+    </div>
+
+    <script>
+
+      let timeline = [];
+
+function addTimeline() {
+    const phase = document.getElementById('timelinePhase').value;
+    const goal = document.getElementById('timelineGoal').value;
+    if(phase && goal) {
+        timeline.push({ phase, goal });
+        document.getElementById('timelinePhase').value = "";
+        document.getElementById('timelineGoal').value = "";
+        renderTimeline();
+        sync();
+    }
+}
+
+function renderTimeline() {
+    const stack = document.getElementById('timelineStack');
+    const pdfStack = document.getElementById('pdfTimeline'); // Add this ID in your hidden PDF
+    
+    stack.innerHTML = timeline.map((t, i) => `
+        <div class="flex justify-between text-[10px] bg-white/5 p-2 rounded border border-white/5">
+            <span class="text-cyan-400 font-bold">${t.phase}</span>
+            <span class="text-gray-400">${t.goal}</span>
+            <button onclick="timeline.splice(${i},1);renderTimeline();sync()" class="text-red-500">✕</button>
+        </div>
+    `).join('');
+}
+
+// Inside your existing sync() function, add:
+function sync() {
+    // ... previous sync code ...
+
+    // Video Logic
+    const video = document.getElementById('videoLink').value;
+    document.getElementById('viewVideo').innerHTML = video ? 
+        `<a href="${video}" target="_blank" class="flex items-center gap-2 text-xs text-cyan-400 bg-cyan-400/10 p-3 rounded-xl border border-cyan-400/20">
+            <i class="fa-solid fa-play-circle"></i> Watch Personalized Strategy Video
+        </a>` : '';
+
+    // ROI Logic
+    const metric = document.getElementById('targetMetric').value || "TBD";
+    const scale = document.getElementById('targetScale').value || "TBD";
+    document.getElementById('viewROI').innerHTML = `
+        <div class="grid grid-cols-2 gap-4 mt-4">
+            <div class="p-4 bg-white/5 rounded-2xl border border-white/5">
+                <p class="text-[9px] text-gray-500 uppercase font-bold">Target KPI</p>
+                <p class="text-lg font-black text-white">${metric}</p>
+            </div>
+            <div class="p-4 bg-white/5 rounded-2xl border border-white/5">
+                <p class="text-[9px] text-gray-500 uppercase font-bold">Expected Volume</p>
+                <p class="text-lg font-black text-white">${scale}</p>
+            </div>
+        </div>
+    `;
+    
+    // Update PDF Timeline
+    document.getElementById('pdfTimeline').innerHTML = timeline.map(t => `
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:5px 0; font-size:9pt;">
+            <strong style="color:#00D1FF">${t.phase}</strong>
+            <span>${t.goal}</span>
+        </div>
+    `).join('');
+}
+        let items = [];
+        
+        function sync() {
+            const client = document.getElementById('clientName').value || "Enter Client Name";
+            const contact = document.getElementById('clientContact').value || "Contact Details";
+            const payTerms = document.getElementById('payTerms').value;
+            
+            // Auto Expiry Logic (Today + 30 Days)
+            const d = new Date();
+            d.setDate(d.getDate() + 30);
+            const expiryStr = d.toLocaleDateString('en-GB');
+
+            document.getElementById('viewClient').innerText = client;
+            document.getElementById('viewContact').innerText = contact;
+            document.getElementById('viewPayTerms').innerText = payTerms;
+            document.getElementById('expiryDate').innerText = expiryStr;
+
+            // PDF Sync
+            document.getElementById('pdfClient').innerText = client;
+            document.getElementById('pdfContact').innerText = contact;
+            document.getElementById('pdfPayTerms').innerText = payTerms;
+            document.getElementById('pdfExpiry').innerText = expiryStr;
+            document.getElementById('pdfID').innerText = "UL-" + Math.floor(Math.random()*9000 + 1000);
+            
+            renderItems();
+        }
+
+        function addItem() {
+            const s = document.getElementById('serviceSelect').value;
+            const c = document.getElementById('serviceCost').value;
+            if(c) {
+                items.push({ name: s, cost: parseInt(c) });
+                document.getElementById('serviceCost').value = "";
+                sync();
+            }
+        }
+
+        function renderItems() {
+            let total = 0;
+            const listUI = document.getElementById('viewItems');
+            const listPDF = document.getElementById('pdfItems');
+            const itemList = document.getElementById('itemList');
+            
+            listUI.innerHTML = "";
+            listPDF.innerHTML = "";
+            itemList.innerHTML = "";
+
+            items.forEach((item, index) => {
+                total += item.cost;
+                listUI.innerHTML += `<tr class="border-b border-white/5"><td class="py-4 font-medium text-white">${item.name}</td><td class="py-4 text-right font-bold text-white">₹${item.cost.toLocaleString()}</td></tr>`;
+                listPDF.innerHTML += `<tr><td>${item.name}</td><td style="text-align: right;">₹${item.cost.toLocaleString()}</td></tr>`;
+                itemList.innerHTML += `<div class="flex justify-between text-xs bg-white/5 p-2 rounded"><span>${item.name}</span><button onclick="items.splice(${index},1);sync()" class="text-red-500">✕</button></div>`;
+            });
+
+            document.getElementById('viewTotal').innerText = "₹" + total.toLocaleString();
+            document.getElementById('pdfTotal').innerText = "₹" + total.toLocaleString();
+        }
+
+        function generatePDF() {
+            const element = document.getElementById('proposal-pdf');
+            element.style.display = 'block';
+            const opt = {
+                margin: 0,
+                filename: `Proposal_${document.getElementById('clientName').value}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 3 },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none';
+            });
+        }
+
+        // Init
+        sync();
+
+
+        // Add this logic to your PDF generator to group items automatically
+function groupItemsByPillar(items) {
+    // This logic can be used to visually separate "Setup Fees" from "Monthly Retainers"
+    // on the final PDF to make it look cleaner.
+}
+    </script>
+</body>
+</html>
