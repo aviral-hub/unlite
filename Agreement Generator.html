@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSA Generator | Unlitify Intel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --cyan: #00D1FF; --bg: #050505; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
+        .input-field { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; color: white; width: 100%; outline: none; }
+        .input-field:focus { border-color: var(--cyan); }
+        
+        /* PDF Styling */
+        #legal-document {
+            background: white;
+            color: #1a1a1a;
+            padding: 1in;
+            width: 8.27in;
+            min-height: 11.69in;
+            margin: 0 auto;
+            display: none; /* Hidden on screen, used for export */
+        }
+        .pdf-h1 { font-size: 28pt; font-weight: 800; border-bottom: 4px solid #000; padding-bottom: 10px; margin-bottom: 30px; }
+        .pdf-h2 { font-size: 14pt; font-weight: 700; margin-top: 20px; text-transform: uppercase; color: #333; }
+        .pdf-p { font-size: 10.5pt; line-height: 1.6; margin-bottom: 15px; color: #444; }
+    </style>
+</head>
+<body class="p-6 md:p-12">
+
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
+        
+        <div class="space-y-8">
+            <div>
+                <h1 class="text-4xl font-black tracking-tighter mb-2">MSA <span class="text-cyan-400">Generator</span></h1>
+                <p class="text-gray-500 text-sm">Fill in the details to generate a legally formatted Master Service Agreement.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-gray-400">Client Entity Name</label>
+                    <input type="text" id="clientName" placeholder="e.g. Raunak Covers Ltd" class="input-field" oninput="updatePreview()">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-gray-400">Effective Date</label>
+                    <input type="date" id="docDate" class="input-field" oninput="updatePreview()">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-gray-400">Payment Terms</label>
+                    <select id="paymentTerms" class="input-field" onchange="updatePreview()">
+                        <option value="Net-0 (Upfront)">Net-0 (Due Immediately)</option>
+                        <option value="Net-7 (7 Days)">Net-7 (7 Days from Invoice)</option>
+                        <option value="Net-15 (15 Days)">Net-15 (15 Days from Invoice)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-gray-400">Late Fee (%)</label>
+                    <input type="number" id="lateFee" placeholder="2%" class="input-field" value="2" oninput="updatePreview()">
+                </div>
+            </div>
+
+            <button onclick="exportMSA()" class="w-full bg-cyan-500 text-black font-black py-4 rounded-xl uppercase tracking-widest text-sm hover:bg-white transition-all shadow-lg shadow-cyan-500/20">
+                Generate & Export PDF
+            </button>
+        </div>
+
+        <div class="bg-white/5 border border-white/10 rounded-[32px] p-8 h-[600px] overflow-y-auto relative">
+            <div class="sticky top-0 bg-zinc-900/80 backdrop-blur pb-4 mb-6 border-b border-white/10 flex justify-between items-center">
+                <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Live Legal Preview</span>
+                <span class="text-[10px] text-gray-500">Unlitify Protocol v2.1</span>
+            </div>
+            <div id="previewText" class="text-gray-400 text-xs space-y-4 leading-relaxed">
+                Enter details to start the legal rendering...
+            </div>
+        </div>
+    </div>
+
+    <div id="legal-document">
+        <div class="pdf-h1">Master Service Agreement</div>
+        <p class="pdf-p"><strong>EFFECTIVE DATE:</strong> <span id="pdfDate"></span></p>
+        <p class="pdf-p"><strong>BETWEEN:</strong> <strong>Unlitify Intelligence</strong> ("Agency") and <strong id="pdfClient"></strong> ("Client").</p>
+        
+        <div class="pdf-h2">1. Scope of Relationship</div>
+        <p class="pdf-p">The Agency acts as an independent contractor. This Agreement does not create an employer-employee relationship, partnership, or joint venture between the parties.</p>
+
+        <div class="pdf-h2">2. Payment & Settlement</div>
+        <p class="pdf-p">Client agrees to the payment terms of <strong id="pdfTerms"></strong>. Invoices not paid within the specified window will incur a monthly late fee of <strong id="pdfLate"></strong>% of the outstanding balance.</p>
+
+        <div class="pdf-h2">3. Non-Solicitation (Protection Clause)</div>
+        <p class="pdf-p">During the term of this Agreement and for a period of twenty-four (24) months thereafter, Client shall not, directly or indirectly, solicit, recruit, or hire any employee, partner, or contractor of the Agency without express written consent. Violation of this clause shall result in a placement fee equal to 50% of the individual’s annual compensation.</p>
+
+        <div class="pdf-h2">4. Intellectual Property</div>
+        <p class="pdf-p">Upon full payment of all fees, the Client owns the final deliverables. However, Agency retains all rights to its pre-existing proprietary methods, software scripts, and internal growth frameworks used to deliver the services.</p>
+
+        <div class="pdf-h2">5. Jurisdiction</div>
+        <p class="pdf-p">This agreement is governed by the laws of India. Any disputes shall be settled in the courts of Maharashtra/India.</p>
+
+        <div style="margin-top: 50px; display: flex; justify-content: space-between;">
+            <div style="width: 45%; border-top: 1px solid #000; padding-top: 10px;">
+                <p style="font-size: 9pt;">Unlitify Intelligence (Authorized Signatory)</p>
+            </div>
+            <div style="width: 45%; border-top: 1px solid #000; padding-top: 10px;">
+                <p style="font-size: 9pt;">Client: <span id="pdfSignName"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updatePreview() {
+            const name = document.getElementById('clientName').value || "[Client Name]";
+            const date = document.getElementById('docDate').value || "[Date]";
+            const terms = document.getElementById('paymentTerms').value;
+            const fee = document.getElementById('lateFee').value;
+
+            // Update UI Preview
+            document.getElementById('previewText').innerHTML = `
+                <p><strong>This MSA is entered between Unlitify and ${name} on ${date}.</strong></p>
+                <p><strong>Payment terms:</strong> ${terms}.</p>
+                <p><strong>Non-Solicitation:</strong> Client cannot hire Unlitify partners for 24 months. If breached, a 50% penalty applies.</p>
+                <p><strong>Late Fee:</strong> ${fee}% monthly interest on late payments.</p>
+            `;
+
+            // Update Hidden PDF content
+            document.getElementById('pdfClient').innerText = name;
+            document.getElementById('pdfSignName').innerText = name;
+            document.getElementById('pdfDate').innerText = date;
+            document.getElementById('pdfTerms').innerText = terms;
+            document.getElementById('pdfLate').innerText = fee;
+        }
+
+        function exportMSA() {
+            const element = document.getElementById('legal-document');
+            element.style.display = 'block'; // Show for capture
+
+            const opt = {
+                margin: 0,
+                filename: `MSA_Unlitify_${document.getElementById('clientName').value}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none'; // Hide again
+            });
+        }
+    </script>
+</body>
+</html>
